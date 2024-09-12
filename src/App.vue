@@ -1,6 +1,6 @@
 <script setup>
 
-import {ref} from 'vue'
+import {ref, onMounted, watch} from 'vue'
 
 const myArray = ref([])
 const name = ref('')
@@ -23,7 +23,26 @@ const addTodo = () =>{
   input_content.value = ''
   input_category.value = null
 
+
+
 }
+
+const removeTodo = (x) =>{
+  myArray.value = myArray.value.filter(Element => Element !== x)
+}
+
+onMounted(() => {
+  name.value = localStorage.getItem('name') || ''
+  myArray.value = JSON.parse(localStorage.getItem('myArray')) || []
+}
+)
+
+watch(name, (newVal) => {
+  localStorage.setItem('name', newVal)
+})
+watch(myArray, (newVal) => {
+  localStorage.setItem('myArray', JSON.stringify(newVal))
+},{deep:true})
 
 </script>
 
@@ -32,10 +51,10 @@ const addTodo = () =>{
 <main class="app">
 <section class="greeting">
 <h2 class="title">
-  welcome back, <input type= "text" placeholder="Enter Name" v-model="name">
+  Welcome back, <input type= "text" placeholder="Enter Name" v-model="name">
 </h2>
 </section>
-<section class="create-to-do">
+<section class="create-todo">
   <h3>CREATE A TO DO LIST</h3>
   <form @submit.prevent = "addTodo">
     <h4>what's on your to do list?</h4>
@@ -46,7 +65,7 @@ const addTodo = () =>{
   <h4>Pick a Category</h4>
   <div class="options">
     <label>
-      <input type="radio" name="category" value="buisness" v-model="input_category">
+      <input type="radio" name="category" value="business" v-model="input_category">
       <span class="bubble business"></span>
       <div>Business</div>
     </label>
@@ -72,8 +91,13 @@ const addTodo = () =>{
         <input type="checkbox" v-model="x.done"/>
         <span :class="`bubble ${x.category}`"></span>
       </label>
+
       <div class="todo-content">
         <input type="text" v-model="x.content"/>
+      </div>
+
+      <div class="actions">
+        <button class="delete" @click="removeTodo(x)">Delete</button>
       </div>
     </div>
   </div>
